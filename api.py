@@ -18,7 +18,7 @@ def search_complaints():
     results = df[df["Review"].str.contains(keyword, case=False, na=False)]
 
     # Select only required columns
-    selected = results[["Last Name", "First Name", "Review"]]
+    selected = results[["Business","Experience","Last Name", "First Name", "Review"]]
 
     # Convert to HTML table
     table_html = selected.to_html(index=False)
