@@ -4,42 +4,50 @@ import os
 
 app = Flask(__name__)
 
-# Load CSV
+#reading the csv file
 df = pd.read_csv("complaints.csv")
 
-# Homepage UI
+#home page
 @app.route("/")
 def home():
     return """
     <html>
-        <head>
-            <title>Complaint Search</title>
-        </head>
-        <body style="font-family: Arial; padding: 40px;">
-            <h2>Complaint Search Tool</h2>
+    <head>
+        <title>Complaint Search</title>
+    </head>
 
-            <form action="/api/search" method="get">
-                <input 
-                    type="text" 
-                    name="keyword" 
-                    placeholder="Enter keyword (e.g., good, bad, service)" 
-                    style="padding:10px; width:300px;"
-                    required
-                />
-                <button style="padding:10px;">Search</button>
-            </form>
-        </body>
+    <body style="font-family: Arial; padding: 30px;">
+
+        <h2>Search Complaints</h2>
+
+        <p>Type a keyword to search in complaints</p>
+
+        <form action="/api/search" method="get">
+
+            <input type="text" name="keyword" 
+                placeholder="type something like bad, service, slow" 
+                style="padding:8px; width:280px;" required>
+
+            <br><br>
+
+            <button style="padding:8px;">Search</button>
+
+        </form>
+
+    </body>
     </html>
     """
 
-# Search endpoint
-@app.route("/api/search", methods=["GET"])
+#api for searching complaints
+@app.route("/api/search")
 def search_complaints():
+
     keyword = request.args.get("keyword")
 
-    if not keyword:
-        return "<h3>Error: keyword parameter is required</h3>"
+    if keyword == None or keyword == "":
+        return "<h3>Please enter a keyword</h3>"
 
+    #filter rows where review contains the keyword
     results = df[df["Review"].str.contains(keyword, case=False, na=False)]
 
     selected = results[["Business", "Experience", "Last Name", "First Name", "Review"]]
@@ -48,19 +56,25 @@ def search_complaints():
 
     return f"""
     <html>
-        <head>
-            <title>Results</title>
-        </head>
-        <body style="font-family: Arial; padding: 40px;">
-            <h2>Results for keyword: "{keyword}"</h2>
+    <head>
+        <title>Search Result</title>
+    </head>
 
-            <a href="/">← Back to Search</a><br><br>
+    <body style="font-family: Arial; padding: 30px;">
 
-            {table_html}
-        </body>
+        <h2>Results for: {keyword}</h2>
+
+        <a href="/">Go Back</a>
+
+        <br><br>
+
+        {table_html}
+
+    </body>
     </html>
     """
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
